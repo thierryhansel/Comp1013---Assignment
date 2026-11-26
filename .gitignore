@@ -2,3 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+*.csv
+desktop.ini
+.gitignore_mine
+*.docx
