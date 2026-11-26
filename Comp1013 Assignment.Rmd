@@ -82,3 +82,42 @@ However, the wide vertical scatter around the line shows that weight only partia
 
 *Overall findings:* Across these bothe analyses, e-commerce order costs are heavily right-skewed which requiere log scale to reveal the patterns and driven by multiple overlapping factors rather than a single metric, most sold items fall within a moderate price tier (centered around ~100 on the log scale) with a long tail of high-priced goods pulling the raw mean above the median, while shipping costs increase moderately with product weight but vary widely due to logistics factors like distance and package dimensions. Together, 
 these findings show that median-based metrics and multivariable models are necessary for accurately summarizing pricing and forecasting logistics costs.
+
+**Task 2: Orders that were not delivered**
+
+```{r}
+orders    <- read.csv("orders.csv")
+customers <- read.csv("customers.csv")
+```
+
+### Part A: orders per status
+
+```{r}
+#Part A: orders per status 
+# count() gives one row per status; mutate() adds the share of all orders.
+status_summary <- orders %>%
+  count(order_status, name = "n_orders") %>%
+  mutate(percent = round(100 * n_orders / sum(n_orders), 2)) %>%
+  arrange(desc(n_orders))
+print(status_summary)
+
+# Percentage of orders whose status is anything other than "delivered"
+pct_not_delivered <- 100 * mean(orders$order_status != "delivered")
+cat("Percentage not delivered:", round(pct_not_delivered, 2), "%\n")
+
+# Bar chart. A log10 y axis is used because "delivered" is so much bigger
+# than the other statuses that the small bars would be invisible.
+ggplot(status_summary, aes(x = reorder(order_status, -n_orders), y = n_orders)) +
+  geom_col() +
+  geom_text(aes(label = paste0(percent, "%")), vjust = -0.4) +
+  scale_y_log10(expand = expansion(mult = c(0.05, 0.25))) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Orders by status", x = "Order status", y = "Number of orders (log scale)")
+
+```
+
+**Results and explanation:** The combined quantity of the orders is 99441. Almost all of them, 96,478 orders (97.02%), were delivered. The other 2,963 orders (2.98%) were not delivered. Of those, the biggest groups are shipped (1,107 orders, 1.11%), canceled (625, 0.63%) and unavailable (609, 0.61%). The smallest groups are invoiced (314), processing (301), created (5) and approved (2).
+
+The y axis of the bar chart was plotted on a log scale. The small bars are hard to see on a normal scale with “Delivered” being a magnitude greater than the other qualifiers. The negative side is that on a log scale the small bar(s) appear to be closer in size to the large bar than they actually are, therefore labeled each bar with percentages with actual distribution.
+
+Overall, delivery rate is very high. The percentage of shoppers with a problem at less than 3%, with most of these customers still shopping (shipped, invoiced, processing) and not failed. Only about 1.2% were canceled or unavailable (625 + 609 = 1,234 orders).
