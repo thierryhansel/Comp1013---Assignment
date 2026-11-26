@@ -19,3 +19,38 @@ By including this statement, I, the author of this work, verify that:
 
 Signature: ______________________  Date: 26/11/2026
 
+\newpage
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(tidyverse)
+library(ggplot2)
+```
+
+ *Task 1: Product prices and shipping costs*
+```{r}
+items    <- read.csv("order_items.csv")
+products <- read.csv("products.csv")
+names(items)
+```
+
+Part A: distribution of item prices
+```{r}
+#Part A: distribution of item prices 
+mean_price   <- mean(items$price)
+median_price <- median(items$price)
+cat("Mean price:", round(mean_price, 2), " Median price:", round(median_price, 2), "\n")
+
+# Prices are right-skewed (many cheap items, few very expensive ones), so a
+# log10 x axis shows the shape better than a plain histogram.
+ggplot(items, aes(x = price)) +
+  geom_histogram(bins = 50) +
+  scale_x_log10() +
+  geom_vline(xintercept = c(mean_price, median_price), linetype = "dashed") +
+  labs(title = "Distribution of item prices (log scale)",
+       x = "Price (log scale)", y = "Number of items")
+```
+*Result and Explaination:* 
+Here, the price of an item is more or less symmetrically distributed around 100 with most prices between 10 and 1000, suggesting a right skew on the raw prices.
+This causes the raw mean to be drawn up from below by the media, although close together on the log scale.
+The raw mean is not a representative value; the median is a more typical value; log transformations makes it easier to compare price tiers.
