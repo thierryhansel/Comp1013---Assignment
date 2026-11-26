@@ -54,3 +54,31 @@ ggplot(items, aes(x = price)) +
 Here, the price of an item is more or less symmetrically distributed around 100 with most prices between 10 and 1000, suggesting a right skew on the raw prices.
 This causes the raw mean to be drawn up from below by the media, although close together on the log scale.
 The raw mean is not a representative value; the median is a more typical value; log transformations makes it easier to compare price tiers.
+
+*Part B: freight value against product weight*
+```{r}
+#Part B: freight value against product weight
+# Join on product_id.
+joined <- left_join(items, products, by = "product_id")
+nrow(joined)
+# Items with missing or zero weight cannot be shown on a log axis, so they are filtered out of the plot (and the number removed is reported).
+plot_data <- joined %>% filter(!is.na(product_weight_g), product_weight_g > 0,
+freight_value > 0)
+nrow(joined) - nrow(plot_data)
+
+ggplot(plot_data, aes(x = product_weight_g, y = freight_value)) +
+  geom_point(alpha = 0.2) +
+  scale_x_log10() + scale_y_log10() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(title = "Freight value against product weight",
+       x = "Product weight (g, log scale)", y = "Freight value (log scale)")
+
+# A number to support your description of the relationship
+cor(log10(plot_data$product_weight_g), log10(plot_data$freight_value))
+```
+
+*Results and explanation:* on this scale, the freight value and product weight show a positive linear association, where heavier products tend to cost a lot more to ship, as waht the trend line indicates (r = 0.4829651).
+However, the wide vertical scatter around the line shows that weight only partially explains shipping costs, other factors also play a major role in this.
+
+*Overall findings:* Across these bothe analyses, e-commerce order costs are heavily right-skewed which requiere log scale to reveal the patterns and driven by multiple overlapping factors rather than a single metric, most sold items fall within a moderate price tier (centered around ~100 on the log scale) with a long tail of high-priced goods pulling the raw mean above the median, while shipping costs increase moderately with product weight but vary widely due to logistics factors like distance and package dimensions. Together, 
+these findings show that median-based metrics and multivariable models are necessary for accurately summarizing pricing and forecasting logistics costs.
