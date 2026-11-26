@@ -121,3 +121,37 @@ ggplot(status_summary, aes(x = reorder(order_status, -n_orders), y = n_orders)) 
 The y axis of the bar chart was plotted on a log scale. The small bars are hard to see on a normal scale with “Delivered” being a magnitude greater than the other qualifiers. The negative side is that on a log scale the small bar(s) appear to be closer in size to the large bar than they actually are, therefore labeled each bar with percentages with actual distribution.
 
 Overall, delivery rate is very high. The percentage of shoppers with a problem at less than 3%, with most of these customers still shopping (shipped, invoiced, processing) and not failed. Only about 1.2% were canceled or unavailable (625 + 609 = 1,234 orders).
+
+
+**Part B: not delivered by customer state**
+
+```{r}
+#Part B: not-delivered percentage per customer state
+# Each order has exactly one customer_id, and customer_id is unique in
+# customers, so an inner join keeps every order once.
+orders_state <- inner_join(orders, customers, by = "customer_id")
+nrow(orders_state)    # should equal nrow(orders)
+
+state_summary <- orders_state %>%
+  group_by(customer_state) %>%
+  summarise(n_orders = n(),
+            pct_not_delivered = 100 * mean(order_status != "delivered")) %>%
+  arrange(desc(pct_not_delivered))
+print(state_summary)
+
+ggplot(state_summary, aes(x = reorder(customer_state, -pct_not_delivered),
+                          y = pct_not_delivered)) +
+  geom_col() +
+  labs(title = "Percentage of orders not delivered, by customer state",
+       x = "Customer state", y = "Orders not delivered (%)")
+```
+
+**Results and explanation:** Joined the ID from the orders table to join the customers table which resulted in 99,441 rows, one per order, representing 27 states. I then took one-third of each state's orders to see how many were not delivered, obtaining percentages.
+
+Roraima (RR) has the highest percentage, 10.87%, which is well in excess of the others. The next highest are Sergipe (SE, 4.29%), Ceará (CE, 4.27%) and Maranhão (MA, 4.02%). The lowest are Acre (AC, 1.23%), Amapá (AP, 1.47%) and Espírito Santo (ES, 1.87%). The largest state (SP), registered 41,746 orders (same rate as the national figure, 2.98%).
+
+Use caution interpreting the high RR percentage. Only 46 orders, 5 of which are not delivered gives ERR the chance to get some larger percentage jumps when orders change. AP and AC experience a similar issue with 81 and 68 orders respectively that are never delivered and each have one order delivered late. The percentages of these small states should be more carefully taken with a grain of salt than those of large states like SP (3.91%), RJ (3.91%) and MG (2.42%).
+
+One theory is that distance makes them. A number of the higher rate states (RR, SE, CE, MA) are in the north and north-east, at a significant distance from the major sellers and warehouses in the south-east. The longer the routes are the more opportunities for an order to be delayed, lost or even canceled. This is just one possible reason, as I haven't checked on the data.
+
+**Overall findings:** In total the delivery of 97.02 % of orders took place and 2.98 % orders were not delivered. The not delivered orders were mostly shipped (25.8%), invoiced or processing (54.5%) or canceled/unavailable (1.2%) in total, which were in-pipeline from a generalized perspective.Almost all the not delivered orders were either in-ship mode (25.8%) or in the invoice or processing stage (54.5%) or cancelled and unavailable (1.2%) indicates a generalized view of the not delivered orders being progressed. The rate varies from state to state (1.23% in AC to 10.87% in RR) and the highest must be interpreted with caution as occurring in states with relatively low numbers of orders. There is a low number of large states with average or higher rates, such as RJ (3.91%) and CE (4.27%) that have a high number of affected customers.
