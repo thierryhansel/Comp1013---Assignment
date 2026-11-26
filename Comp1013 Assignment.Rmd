@@ -155,3 +155,36 @@ Use caution interpreting the high RR percentage. Only 46 orders, 5 of which are 
 One theory is that distance makes them. A number of the higher rate states (RR, SE, CE, MA) are in the north and north-east, at a significant distance from the major sellers and warehouses in the south-east. The longer the routes are the more opportunities for an order to be delayed, lost or even canceled. This is just one possible reason, as I haven't checked on the data.
 
 **Overall findings:** In total the delivery of 97.02 % of orders took place and 2.98 % orders were not delivered. The not delivered orders were mostly shipped (25.8%), invoiced or processing (54.5%) or canceled/unavailable (1.2%) in total, which were in-pipeline from a generalized perspective.Almost all the not delivered orders were either in-ship mode (25.8%) or in the invoice or processing stage (54.5%) or cancelled and unavailable (1.2%) indicates a generalized view of the not delivered orders being progressed. The rate varies from state to state (1.23% in AC to 10.87% in RR) and the highest must be interpreted with caution as occurring in states with relatively low numbers of orders. There is a low number of large states with average or higher rates, such as RJ (3.91%) and CE (4.27%) that have a high number of affected customers.
+
+**Task 3: Payment methods**
+
+```{r}
+payments <- read.csv("payments.csv")
+```
+
+**Part A: how often each payment type is used**
+
+```{r}
+#Part A: how often each payment type is used 
+# One row in payments.csv is one payment, so counting rows counts payments.
+type_summary <- payments %>%
+  count(payment_type, name = "n_payments") %>%
+  mutate(percent = round(100 * n_payments / sum(n_payments), 2)) %>%
+  arrange(desc(n_payments))
+print(type_summary)
+
+ggplot(type_summary, aes(x = reorder(payment_type, -n_payments), y = n_payments)) +
+  geom_col() +
+  geom_text(aes(label = paste0(percent, "%")), vjust = -0.4) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+  labs(title = "Number of payments by payment type",
+       x = "Payment type", y = "Number of payments")
+
+```
+
+**Results and explanation:** The data has 103,886 payments. By far the highest method of payment was credit card payments (76,795, or 73.92%). Those who pay via Boleto, a bank-slip payment from Brazil, come in next with 19,784 payments (19.04%). Vouchers account for 5,775 payments (5.56%) and debit cards for 1,529 payments (1.47%). The count of not_defined type is very small, only 0.00%, so is it's corresponding bar.
+
+Over 93% of payments are by credit card and bank slips combined - meaning that customers primarily pay with bank slip and card. Debit card is seldomly used.
+
+This is NOT orders, it is payments. There is one order which may require more than 1 payment (e.g. a voucher and a credit card), and therefore the number of payments (103,886) is a bit higher than the number of orders (99,441).
+
