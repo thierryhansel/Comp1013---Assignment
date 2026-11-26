@@ -1,0 +1,21 @@
+---
+title: 'COMP1013 Analytic Programming: Assignment'
+output: word_document
+date: "`r Sys.Date()`"
+---
+**Name:** Thierry Hansel Setiawan
+**Student number:** 22205404  
+**Subject:** COMP1013 Analytic Programming  
+
+**Declaration**
+
+By including this statement, I, the author of this work, verify that:
+
+- I hold a copy of this assignment that I can produce if the original is lost or damaged.
+- I hereby certify that no part of this assignment/product has been copied from any other student's work or from any other source except where due acknowledgement is made in the assignment.
+- No part of this assignment/product has been written/produced for me by another person except where such collaboration has been authorised by the subject lecturer/tutor concerned.
+- I am aware that this work may be reproduced and submitted to plagiarism detection software programs for the purpose of detecting possible plagiarism (which may retain a copy on its database for future plagiarism checking).
+- I hereby certify that I have read and understand what the School of Computing, Data Science and Mathematics defines as minor and substantial breaches of misconduct as outlined in the learning guide for this unit.
+
+Signature: ______________________  Date: 26/11/2026
+
