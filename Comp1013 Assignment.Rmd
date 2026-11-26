@@ -188,3 +188,34 @@ Over 93% of payments are by credit card and bank slips combined - meaning that c
 
 This is NOT orders, it is payments. There is one order which may require more than 1 payment (e.g. a voucher and a credit card), and therefore the number of payments (103,886) is a bit higher than the number of orders (99,441).
 
+**Part B: payment values by type**
+
+```{r}
+#Part B: payment values by type 
+# Payment values are very right-skewed (a few huge payments), so a log10 y
+# axis makes the boxes readable. Zero values cannot be shown on a log axis, so
+# the 3 "not_defined" payments (all value 0) are dropped for this plot only.
+plot_data <- payments %>% filter(payment_type != "not_defined", payment_value > 0)
+
+ggplot(plot_data, aes(x = payment_type, y = payment_value)) +
+  geom_boxplot() +
+  scale_y_log10() +
+  labs(title = "Payment value by payment type",
+       x = "Payment type", y = "Payment value (log scale)")
+
+# Numbers to quote when explaining the boxplot
+payments %>%
+  group_by(payment_type) %>%
+  summarise(median = median(payment_value), mean = mean(payment_value),
+            q1 = quantile(payment_value, 0.25), q3 = quantile(payment_value, 0.75))
+```
+
+**Results and explanation:** A box plot is used to compare the values of the payments with each type of payment. The y axis was plotted on a log scale due to the highly skewed nature of the payments; most payments are small and a few payments are very large. I have deleted the three not_defined payments, which are all 0, and can't be displayed in the log scale.
+
+Boleto-type boxes are not dissimilar to credit card and debit card boxes. Their median payments are 93.89 (boleto), 106.87 (credit card) and 89.30 (debit card). The median is highest for credit card, and the middle 50% of payments range from approximately 62 to 181. Credit card has the highest value, with the highest possible payment of approximately 13664, followed by boleto with payment of approximately 7275 and debit card with about 4446.
+
+Vouchers are used if it seems to be a much smaller amount. The median voucher payment is only 39.28, and the middle 50% of voucher payments are between about 18 and 80. The box with the vouchers is placed at a lower level than the rest.
+
+Both the credit card and voucher plots contain numerous outliers that are extremely small, near to 0.01, for both variables. It could be minute residual fees payments that were received after another form of payment had paid for the bulk of the order, but it has not been verified with the data.
+
+**Overall findings:** The most common means of payment is the credit card accounting for approximately 74% of payments, followed by boleto (19%). Credit card is also employed to pay for the greatest amounts, having the highest median and the highest payments. Boleto and debit card are similar, and work for mid-sized transactions. The smallest payments are for vouchers and have about 39 vouchers compared to about 90 – 107 for the other types of payments. Customers primarily pay in credit card and vouchers are used to accommodate smaller portions of an order.
